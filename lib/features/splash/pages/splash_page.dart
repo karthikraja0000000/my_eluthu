@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../utils/constant_color.dart';
 import '../../lock/pages/lock_page.dart';
+import '../../home/pages/home_page.dart';
+import '../../../utils/app_prefs.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -19,10 +21,19 @@ class _SplashPageState extends State<SplashPage> {
 
   _navigateToNext() async {
     await Future.delayed(const Duration(seconds: 3));
-    if (mounted) {
+    if (!mounted) return;
+
+    final pin = await AppPrefs.getPin();
+
+    if (pin != null && pin.isNotEmpty) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const LockPage()),
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const DiaryHomePage()),
       );
     }
   }

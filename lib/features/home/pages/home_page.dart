@@ -9,6 +9,8 @@ import '../../../utils/constant_color.dart';
 import '../../entry_page/entry_page.dart';
 import '../../lock/pages/security_settings_page.dart';
 
+import '../../../utils/app_prefs.dart';
+
 // ─── Home Page ────────────────────────────────────────────────────────────────
 
 class DiaryHomePage extends StatefulWidget {
@@ -33,6 +35,47 @@ class _DiaryHomePageState extends State<DiaryHomePage>
       duration: const Duration(milliseconds: 600),
     )..forward();
     _loadEntries();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkSecurityPrompt();
+    });
+  }
+
+  Future<void> _checkSecurityPrompt() async {
+    final pin = await AppPrefs.getPin();
+    final hasPrompted = await AppPrefs.hasPromptedPin();
+
+    if ((pin == null || pin.isEmpty) && !hasPrompted) {
+      if (!mounted) return;
+      await AppPrefs.setHasPromptedPin(true);
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Set a PIN?"),
+          content: const Text(
+            "Would you like to protect your diary with a PIN lock?",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("NOT NOW"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SecuritySettingsPage(),
+                  ),
+                );
+              },
+              child: const Text("SET PIN"),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   @override

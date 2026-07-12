@@ -36,10 +36,18 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
   Future<void> _savePin() async {
     if (_pinController.text.length == 4) {
       await AppPrefs.setPin(_pinController.text);
+      await AppPrefs.setHasPromptedPin(true);
       if (mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text("PIN saved successfully")));
+      }
+    } else if (_pinController.text.isEmpty) {
+      await AppPrefs.setPin("");
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("PIN removed")));
       }
     } else {
       ScaffoldMessenger.of(
@@ -76,6 +84,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
               controller: _pinController,
               decoration: InputDecoration(
                 hintText: "Enter 4-digit PIN",
+                helperText: "Leave empty to disable PIN lock",
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(

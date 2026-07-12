@@ -26,8 +26,11 @@ class _LockPageState extends State<LockPage> {
 
   Future<void> _initLock() async {
     _storedPin = await AppPrefs.getPin();
-    // Default PIN if none set
-    _storedPin ??= "1234";
+
+    if (_storedPin == null || _storedPin!.isEmpty) {
+      _onAuthenticated();
+      return;
+    }
 
     try {
       _canCheckBiometrics = await auth.canCheckBiometrics;
@@ -128,9 +131,7 @@ class _LockPageState extends State<LockPage> {
             ),
             SizedBox(height: 12.h),
             Text(
-              _storedPin == "1234"
-                  ? "Default PIN is 1234"
-                  : "Unlock your diary",
+              "Unlock your diary",
               style: TextStyle(
                 fontSize: 14.sp,
                 color: AppColors.bodyText.withOpacity(0.5),
